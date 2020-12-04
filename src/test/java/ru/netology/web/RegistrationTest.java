@@ -1,22 +1,30 @@
 package ru.netology.web;
 
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.*;
 import static com.codeborne.selenide.Selenide.*;
 
 class RegistrationTest {
-    String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-
     @Test
     void shouldRegisterSuccessful() {
         open("http://localhost:9999");
         $("[data-test-id='city'] input").setValue("Санкт-Петербург");
+        $("[data-test-id='name'] input").setValue("Василий Петров");
+        $("[data-test-id='phone'] input").setValue("+79200000000");
+        $("[data-test-id='agreement']").click();
+        $$("[type='button']").find(exactText("Забронировать")).click();
+        $(withText("Успешно")).waitUntil(visible, 13000);
+    }
+
+    @Test
+    void shouldChooseCityFromDropDownList() {
+        open("http://localhost:9999");
+        $("[data-test-id='city'] input").setValue("Мо");
+        $$(By.className("menu-item__control")).find(exactText("Смоленск")).click();
         $("[data-test-id='name'] input").setValue("Василий Петров");
         $("[data-test-id='phone'] input").setValue("+79200000000");
         $("[data-test-id='agreement']").click();
