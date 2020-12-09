@@ -7,20 +7,20 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.*;
 import static com.codeborne.selenide.Selenide.*;
 
 class RegistrationTest {
-    LocalDate date = LocalDate.now();
-    int dayOfMonth = date.plusDays(3).getDayOfMonth();
-    int month = date.getMonthValue();
-    int year = date.getYear();
-    String dayOfMonthStr = String.valueOf(dayOfMonth);
-    String yearStr = String.valueOf(year);
-    String monthStr = String.valueOf(month);
-    String validDate = dayOfMonthStr + monthStr + yearStr;
+    String meetingDate = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    String meetingDateCalendarApp = LocalDate.now().plusDays(3).plusMonths(2)
+            .format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+
+    StringBuilder stringBuilder = new StringBuilder(meetingDate);
+    StringBuilder meetingDateCut = stringBuilder.replace(2, 10, "");
+
 
     @BeforeEach
     void setUp() {
@@ -31,12 +31,12 @@ class RegistrationTest {
     void shouldRegisterSuccessful() {
         $("[data-test-id='city'] input").setValue("Санкт-Петербург");
         $("[data-test-id='date'] input").sendKeys(Keys.chord(Keys.CONTROL, "a") + Keys.DELETE);
-        $("[data-test-id='date'] input").setValue(validDate);
+        $("[data-test-id='date'] input").setValue(meetingDate);
         $("[data-test-id='name'] input").setValue("Василий Петров");
         $("[data-test-id='phone'] input").setValue("+79200000000");
         $("[data-test-id='agreement']").click();
         $$("[type='button']").find(exactText("Забронировать")).click();
-        $(withText(dayOfMonthStr + "." + monthStr + "." + yearStr)).waitUntil(visible, 13000);
+        $(withText(meetingDate)).waitUntil(visible, 13000);
     }
 
     @Test
@@ -44,25 +44,26 @@ class RegistrationTest {
         $("[data-test-id='city'] input").setValue("Мо");
         $$(By.className("menu-item__control")).find(exactText("Смоленск")).click();
         $("[data-test-id='date'] input").sendKeys(Keys.chord(Keys.CONTROL, "a") + Keys.DELETE);
-        $("[data-test-id='date'] input").setValue(validDate);
+        $("[data-test-id='date'] input").setValue(meetingDate);
         $("[data-test-id='name'] input").setValue("Василий Петров");
         $("[data-test-id='phone'] input").setValue("+79200000000");
         $("[data-test-id='agreement']").click();
         $$("[type='button']").find(exactText("Забронировать")).click();
-        $(withText(dayOfMonthStr + "." + monthStr + "." + yearStr)).waitUntil(visible, 13000);
+        $(withText(meetingDate)).waitUntil(visible, 13000);
     }
 
     @Test
-    void shouldDateFromCalendarApp() {
+    void shouldChooseDateFromCalendarApp() {
+        System.out.println(meetingDateCut);
         $("[data-test-id='city'] input").setValue("Санкт-Петербург");
         $(By.className("icon_name_calendar")).click();
         $("[data-step='1']").doubleClick();
-        $$(By.className("calendar__day")).find(exactText("16")).click();
+        $$(By.className("calendar__day")).find(exactText(meetingDateCut.toString())).click();
         $("[data-test-id='name'] input").setValue("Василий Петров");
         $("[data-test-id='phone'] input").setValue("+79200000000");
         $("[data-test-id='agreement']").click();
         $$("[type='button']").find(exactText("Забронировать")).click();
-        $(withText("16.02.2021")).waitUntil(visible, 13000);
+        $(withText(meetingDateCalendarApp)).waitUntil(visible, 13000);
     }
 
     @Test
@@ -75,7 +76,7 @@ class RegistrationTest {
     void shouldRegisterWrongCity() {
         $("[data-test-id='city'] input").setValue("Chicago");
         $("[data-test-id='date'] input").sendKeys(Keys.chord(Keys.CONTROL, "a") + Keys.DELETE);
-        $("[data-test-id='date'] input").setValue(validDate);
+        $("[data-test-id='date'] input").setValue(meetingDate);
         $("[data-test-id='name'] input").setValue("Василий Петров");
         $("[data-test-id='phone'] input").setValue("+79200000000");
         $("[data-test-id='agreement']").click();
@@ -99,7 +100,7 @@ class RegistrationTest {
     void shouldRegisterWrongName() {
         $("[data-test-id='city'] input").setValue("Санкт-Петербург");
         $("[data-test-id='date'] input").sendKeys(Keys.chord(Keys.CONTROL, "a") + Keys.DELETE);
-        $("[data-test-id='date'] input").setValue(validDate);
+        $("[data-test-id='date'] input").setValue(meetingDate);
         $("[data-test-id='name'] input").setValue("Oleg Ivanov");
         $("[data-test-id='phone'] input").setValue("+79200000000");
         $("[data-test-id='agreement']").click();
@@ -111,7 +112,7 @@ class RegistrationTest {
     void shouldRegisterWrongPhone() {
         $("[data-test-id='city'] input").setValue("Санкт-Петербург");
         $("[data-test-id='date'] input").sendKeys(Keys.chord(Keys.CONTROL, "a") + Keys.DELETE);
-        $("[data-test-id='date'] input").setValue(validDate);
+        $("[data-test-id='date'] input").setValue(meetingDate);
         $("[data-test-id='name'] input").setValue("Василий Петров");
         $("[data-test-id='phone'] input").setValue("+7920000000");
         $("[data-test-id='agreement']").click();
@@ -123,7 +124,7 @@ class RegistrationTest {
     void shouldRegisterDoNotPushRadioButton() {
         $("[data-test-id='city'] input").setValue("Санкт-Петербург");
         $("[data-test-id='date'] input").sendKeys(Keys.chord(Keys.CONTROL, "a") + Keys.DELETE);
-        $("[data-test-id='date'] input").setValue(validDate);
+        $("[data-test-id='date'] input").setValue(meetingDate);
         $("[data-test-id='name'] input").setValue("Василий Петров");
         $("[data-test-id='phone'] input").setValue("+79200000000");
         $$("[type='button']").find(exactText("Забронировать")).click();
