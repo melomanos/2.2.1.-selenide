@@ -14,13 +14,18 @@ import static com.codeborne.selenide.Selectors.*;
 import static com.codeborne.selenide.Selenide.*;
 
 class RegistrationTest {
-    String meetingDate = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-    String meetingDateCalendarApp = LocalDate.now().plusDays(3).plusMonths(2)
+    String meetingDate = LocalDate.now().plusDays(5).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    String meetingDateCalendarApp = LocalDate.now().plusDays(5).plusMonths(2)
             .format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
 
     StringBuilder stringBuilder = new StringBuilder(meetingDate);
     StringBuilder meetingDateCut = stringBuilder.replace(2, 10, "");
 
+    StringBuilder stringBuilderTill10 = new StringBuilder(meetingDate);
+    StringBuilder meetingDateCutTill10 = stringBuilderTill10.replace(2, 10, "").replace(0, 1, "");
+
+    LocalDate date = LocalDate.now().plusDays(5);
+    int dayOfMonth = date.getDayOfMonth();
 
     @BeforeEach
     void setUp() {
@@ -54,11 +59,16 @@ class RegistrationTest {
 
     @Test
     void shouldChooseDateFromCalendarApp() {
-        System.out.println(meetingDateCut);
         $("[data-test-id='city'] input").setValue("Санкт-Петербург");
         $(By.className("icon_name_calendar")).click();
         $("[data-step='1']").doubleClick();
-        $$(By.className("calendar__day")).find(exactText(meetingDateCut.toString())).click();
+
+        if (dayOfMonth <= 9) {
+            $$(By.className("calendar__day")).find(exactText(meetingDateCutTill10.toString())).click();
+        } else {
+            $$(By.className("calendar__day")).find(exactText(meetingDateCut.toString())).click();
+        }
+
         $("[data-test-id='name'] input").setValue("Василий Петров");
         $("[data-test-id='phone'] input").setValue("+79200000000");
         $("[data-test-id='agreement']").click();
